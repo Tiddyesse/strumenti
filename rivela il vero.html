@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/x-icon" href="logo-occhio.ico" />
+  <title>Decodificatore</title>
+  <style>
+    body {
+      background-color: black;
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      color: white;
+    }
+
+    h1 {
+      font-size: 50px;
+      position: absolute;
+      top: 42%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      font-weight: lighter;
+      color: white;
+      white-space: nowrap;
+    }
+
+    #codice {
+      font-family: 'Courier New', Courier, monospace;
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      margin-top: 70px;
+      transform: translate(-50%,-50%);
+      width: 200px;
+      height: 15px;
+      padding: 15px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    #output {
+      margin-top: 150px;
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      min-width: 30%;
+      min-height: 25px;
+      border: 1px solid white;
+      padding: 20px;
+      font-size: 18px;
+      white-space: pre-wrap;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>RIVELA IL VERO</h1>
+  <input type="text" id="codice" placeholder="Inserire codice">
+  <div id="output"></div>
+
+  <script>
+    const decoder = {
+      "Una dozzina di rose che nessuno ha spedito": "Ho riportato la pagina che aveva occultato alla sua forma originale: https://tiddyesse.github.io/IlTeatrodelSurreale/",
+    };
+
+    const input = document.getElementById('codice');
+    const output = document.getElementById('output');
+
+    input.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        const codiceInserito = input.value.trim().toLowerCase();
+        const frase = decoder[codiceInserito] || "Codice non riconosciuto.";
+
+        // Pulizia e animazione lettera per lettera
+        output.textContent = "";
+        let i = 0;
+        const intervallo = setInterval(() => {
+          output.textContent += frase[i];
+          i++;
+          if (i >= frase.length) clearInterval(intervallo);
+        }, 50); // Velocità scrittura (ms per lettera)
+      }
+    });
+  </script>
+
+</body>
+</html>

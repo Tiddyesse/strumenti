@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generatore di immagini</title>
+  <link rel="icon" type="image/x-icon" href="logo-occhio.ico" />
+  <style>
+    body {
+      background-color: black;
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      color: white;
+    }
+
+    /* --- Form iniziale al centro --- */
+    #centro {
+      font-family: 'Courier New', monospace;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    #titolo {
+      font-size: 50px;
+      margin: -25px;
+      white-space: nowrap;
+      font-weight: lighter;
+    }
+
+    #codice {
+      font-family: 'Courier New', monospace;
+      width: 500px;
+      margin-top: 40px;
+      padding: 8px;
+      font-size: 16px;
+      text-align: center;
+      border: none;
+    }
+
+    #bottone {
+      font-family: 'Courier New', monospace;
+      padding: 7px 15px;
+      margin-left: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #444;
+      color: white;
+    }
+    #bottone:active {
+      background-color: rgb(199, 199, 199);
+      color: black;
+    }
+
+    #errorMsg {
+      color: #f55;
+      font-size: 14px;
+      margin-top: 10px;
+      visibility: hidden;
+    }
+
+    /* --- Modal full-screen --- */
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #closeBtn {
+      position: absolute;
+      top: 20px; right: 30px;
+      font-size: 30px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+    #closeBtn:hover {
+      color: red;
+    }
+
+    #slideshowImage {
+      max-width: 90%;
+      max-height: 70vh;
+      margin-bottom: 15px;
+      filter: blur(20px);
+      /* inizialmente sfocata */
+    }
+
+    /* Animazione da blur(20px) a blur(0px) in 4s */
+    @keyframes deblur {
+      from { filter: blur(20px); }
+      to   { filter: blur(0px);   }
+    }
+    .blur-animation {
+      animation: deblur 4s steps(10) forwards;
+    }
+
+   
+  </style>
+</head>
+<body>
+
+  <div id="centro">
+    <h1 id="titolo">COSA VUOI GENERARE?</h1>
+    <input type="text" id="codice" placeholder="Inserire sequenza di parole">
+    <button id="bottone">Genera</button>
+    <p id="errorMsg">Non posso generarlo</p>
+  </div>
+
+  <div id="modal">
+    <button id="closeBtn">X</button>
+    <img id="slideshowImage" src="" alt="Slideshow">
+
+  </div>
+
+  <script>
+    const immagini = {
+      "di fronte a lui, tra i suoi veri spalti": "spalti.png",
+      "tunello": "tunello.png",
+    };
+
+    const input = document.getElementById("codice");
+    const btn = document.getElementById("bottone");
+    const modal = document.getElementById("modal");
+    const img = document.getElementById("slideshowImage");
+    const errorMsg = document.getElementById("errorMsg");
+    const closeBtn = document.getElementById("closeBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    btn.addEventListener("click", () => {
+      const codiceVal = input.value.trim().toLowerCase();
+      const imgSrc = immagini[codiceVal];
+
+      if (imgSrc) {
+        // Nascondi messaggio di errore e mostra modal
+        errorMsg.style.visibility = "hidden";
+        modal.style.display = "flex";
+
+        // Imposta src e riavvia animazione blur
+        img.src = imgSrc;
+        img.classList.remove("blur-animation");
+        void img.offsetWidth; // forza reflow
+        img.classList.add("blur-animation");
+
+        // Mostra il pulsante di download
+        downloadBtn.style.display = "inline-block";
+
+        // Aggiorna href e filename nel pulsante interna al click handler
+        downloadBtn.onclick = () => {
+          // Scarica l'immagine tramite fetch+blob
+          fetch(imgSrc)
+            .then(response => response.blob())
+            .then(blob => {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = imgSrc.split("/").pop();
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              URL.revokeObjectURL(url);
+            })
+            .catch(() => {
+              console.error("Impossibile scaricare l'immagine (CORS o errore di rete).");
+            });
+        };
+      } else {
+        // Codice non valido: mostra errore e nascondi modal
+        modal.style.display = "none";
+        errorMsg.style.visibility = "visible";
+        downloadBtn.style.display = "none";
+      }
+    });
+
+    closeBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+      downloadBtn.style.display = "none";
+    });
+  </script>
+
+</body>
+</html>
